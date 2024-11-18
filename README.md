@@ -111,7 +111,7 @@ python evaluate.py --evaluate_file_path [path to output jsonl file] --lang [lang
 
 ## 📄 Acknowledge
 
-- The repo is contributed by Xinyu Wang, Shuo Guo, Zheng Zhang and Yangning Li. 
+- The repo is contributed by Xinyu Wang, Shuo Guo, Zhen Zhang and Yangning Li. 
 - This work was inspired by ReACT, SelfAsk, FleshLLMs. Sincere thanks for their efforts. 
 
 ## 📝 Citation
