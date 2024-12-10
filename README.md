@@ -46,7 +46,7 @@ The json item of Dyn-VQA dataset is organized in the following format:
 }
 ```
 
-🔥 The Dyn-VQA **will be updated regularly.** Laset version: 202410.
+🔥 The Dyn-VQA **will be updated regularly.** Laset version: 202412.
 
 # 🛠 Dependencies
 
