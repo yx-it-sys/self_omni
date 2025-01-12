@@ -65,6 +65,8 @@ pip install -r requirement.txt
 
 # 💻 Running OmniSearch
 
+- GPT-4V-based OmniSearch
+
 We have release the code of GPT-4V-based OmniSearch for English questions.
 
 Before running, please replace with your own OPENAI key and Google_search key. OPENAI key is at 11-th line of main.py 
@@ -93,6 +95,17 @@ Run the `main.py` file:
 ```bash
 python main.py --test_dataset 'path/to/dataset.jsonl' --dataset_name NAME --meta_save_path 'path/to/results'
 ```
+
+- Qwen-VL-based OmniSearch
+
+We have made the [training data](https://github.com/Alibaba-NLP/OmniSearch/tree/main/dataset/training_data) for Qwen-VL-based OmniSearch publicly available. This data, along with the [CogVLM dataset](https://modelscope.cn/datasets/ZhipuAI/CogVLM-SFT-311K), was used to jointly train the [Qwen-VL-Chat](https://www.modelscope.cn/models/Qwen/Qwen-VL-Chat) using the [SWIFT framework](https://github.com/modelscope/ms-swift). The training script can be executed as follows:
+
+```
+swift sft --model_type qwen-vl-chat --dataset /Data/Path/to/Training_data_1 /Data/Path/to/Training_data_2 --model_id_or_path /Model/Path/to/Qwen-VL-Chat/ --output_dir /Output/Model/Path --max_length 8192 --evaluation_strategy 'no'
+```
+
+
+
 
 # 🔍 Evaluation
 
