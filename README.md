@@ -8,7 +8,7 @@
 
 Repo for [*Benchmarking Multimodal Retrieval Augmented Generation with Dynamic VQA Dataset and Self-adaptive Planning Agent*](https://arxiv.org/abs/2411.02937)
 
-You can visit the Omnisearch homepage by clicking [*here!*](https://alibaba-nlp.github.io/OmniSearch/)
+You can visit the Omnisearch homepage by clicking [*here!*](https://alibaba-nlp.github.io/OmniSearch/index.html)
 
 🌏 The **Chinese Web Demo** is avaiable at [ModelScope](https://modelscope.cn/studios/iic/OmniSearch/summary?header=default&fullWidth=false) now！
 
