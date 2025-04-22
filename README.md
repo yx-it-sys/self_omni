@@ -8,7 +8,7 @@
 
 Repo for [*Benchmarking Multimodal Retrieval Augmented Generation with Dynamic VQA Dataset and Self-adaptive Planning Agent*](https://arxiv.org/abs/2411.02937)
 
-You can visit the Omnisearch homepage by clicking [*here!*](https://alibaba-nlp.github.io/OmniSearch/index.html)
+You can visit the Omnisearch homepage by clicking [*here!*](https://alibaba-nlp.github.io/OmniSearch/)
 
 🌏 The **Chinese Web Demo** is avaiable at [ModelScope](https://modelscope.cn/studios/iic/OmniSearch/summary?header=default&fullWidth=false) now！
 
@@ -106,6 +106,13 @@ We have made the [training data](https://github.com/Alibaba-NLP/OmniSearch/tree/
 swift sft --model_type qwen-vl-chat --dataset /Data/Path/to/Training_data_1 /Data/Path/to/Training_data_2 --model_id_or_path /Model/Path/to/Qwen-VL-Chat/ --output_dir /Output/Model/Path --max_length 8192 --evaluation_strategy 'no'
 ```
 
+You can download the model from [OmniSearch-Qwen-VL-Chat-en on Hugging Face](https://huggingface.co/Alibaba-NLP/OmniSearch-Qwen-VL-Chat-en/tree/main).
+
+Run the test script.  Run the `Omnisearch_qwen.py` file:
+
+```bash
+python Omnisearch_qwen.py --test_dataset '/path/to/dataset.jsonl' --dataset_name NAME --meta_save_path '/path/to/results' --model_path '/local/path/to/OmniSearch-Qwen-Chat-VL-weight'
+```
 
 
 

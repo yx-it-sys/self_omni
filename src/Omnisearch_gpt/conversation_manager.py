@@ -27,14 +27,12 @@ class ConversationManager:
 
         while self.conversation_num < 5:
             if "Final Answer" in answer:
-               #生成一个字典 tmp_d，代表助手的角色，并将 message 内容添加到其中。将 tmp_d 添加到 current_message 中以保留完整会话记录。
                 tmp_d = {"role": "assistant"}
                 tmp_d.update(message)
                 current_message.append(tmp_d)
                 print(answer)
                 print("-------")
                 print(answer.split("Final Answer: ")[-1])
-                #返回最终答案（去掉 Final Answer: 前缀）、当前会话状态
                 return answer.split("Final Answer: ")[-1], current_message
             
             if any(phrase in answer for phrase in ["Image Retrieval with Input Image", "Text Retrieval", "Image Retrieval with Text Query"]):
@@ -129,24 +127,6 @@ class ConversationManager:
                 }
             ]
            
-            #contents = ["Below are related documents retrieved, which may be helpful for answering questions later on:"]
-            '''for txt in search_text:
-                contents.append(txt)
-            contents.append("\nInput Image:")
-            contents.append('<img>{}</img>'.format(image_url))
-            contents.append(sub_question + ' Answer:')
-            messages = '\n'.join(contents)'''
-            
-            '''contents = [
-                {"role": "user","type": "text", "text": "Below are related documents retrieved, which may be helpful for answering questions later on:"}
-            ]
-            for txt in search_text:
-                contents.append({"type": "text", "text": txt})
-            contents.append({"type": "text", "text": "Input Image:"})
-            contents.append({"type": "image_url", "image_url": {"url": image_url, "detail": "high"}})
-            contents.append({"type": "text", "text": sub_question + " Answer:"})
-            #messages = '\n'.join(contents)
-            messages = contents'''
             success=True
             answer=self.qa_agent.ask_gpt(sub_messages,idx)
             contents = [{"type": "text", "text": "Contents of retrieved documents: "}]
