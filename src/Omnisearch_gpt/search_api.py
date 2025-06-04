@@ -4,12 +4,28 @@ import json
 import os
 import time
 from io import BytesIO
-
 import requests
+from cragmm_search.search import UnifiedSearchPipeline
+from crag_image_loader import ImageLoader
 from PIL import Image
-from serpapi import GoogleSearch
 
-API_KEY = ""
+# initiate both image and web search API
+## validation
+search_pipeline = UnifiedSearchPipeline(
+    image_model_name="openai/clip-vit-large-patch14-336",
+    image_hf_dataset_id="crag-mm-2025/image-search-index-validation",
+    text_model_name="BAAI/bge-large-en-v1.5",
+    web_hf_dataset_id="crag-mm-2025/web-search-index-validation",
+)
+
+## public_test
+search_pipeline = UnifiedSearchPipeline(
+    image_model_name="openai/clip-vit-large-patch14-336",
+    image_hf_dataset_id="crag-mm-2025/image-search-index-public-test",
+    text_model_name="BAAI/bge-large-en-v1.5",
+    web_hf_dataset_id="crag-mm-2025/web-search-index-public-test",
+)
+
 retry_attempt = 3
 
 
@@ -21,123 +37,39 @@ def local_image_to_data_url(image_path):
         b64 = base64.b64encode(f.read()).decode("utf-8")
     return f"data:{mime_type};base64,{b64}"
 
+def search_text_by_text(text_query):
+    results = search_pipeline(text_query, k=2)
+    assert results is not None, "No results found."
+    return results
 
-def search_text_by_text(text):
-    params = {
-        "engine": "google",
-        "q": text,
-        "api_key": API_KEY,
-        "num": 5,
-    }
-    for i in range(retry_attempt):
-        try:
-            search = GoogleSearch(params)
-            results = search.get_dict()
-            return results.get("organic_results", [])
-        except Exception as e:
-            print(f"Attempt {i+1} failed: {e}")
-            if i < retry_attempt - 1:
-                time.sleep(2)
-            else:
-                print("All retries failed.")
-                return []
-
-
-def search_image_by_text(text):
-    params = {
-        "engine": "google_images",
-        "q": text,
-        "api_key": API_KEY,
-    }
-    for i in range(retry_attempt):
-        try:
-            search = GoogleSearch(params)
-            results = search.get_dict()
-            images = results.get("images_results", [])
-            return images[0] if images else {}
-        except Exception as e:
-            print(f"Attempt {i+1} failed: {e}")
-            if i < retry_attempt - 1:
-                time.sleep(2)
-            else:
-                print("All retries failed.")
-                return {}
-
-
-def search_image_by_image_url(input_url):
-    params = {
-        "engine": "google_reverse_image",
-        "image_url": input_url,
-        "hl": "zh-CN",
-        "gl": "CN",
-        "api_key": API_KEY,
-    }
-    for i in range(retry_attempt):
-        try:
-            search = GoogleSearch(params)
-            return search.get_dict()
-        except Exception as e:
-            print(f"Attempt {i+1} failed: {e}")
-            if "SSLError" in str(e):
-                print("SSL error encountered.")
-            elif "ConnectionError" in str(e):
-                print("Network connection error.")
-            if i < retry_attempt - 1:
-                time.sleep(2)
-            else:
-                print("All retries failed. Returning empty result.")
-                return {}
-
-
-def parse_image_search_result_by_text(result, save_path, idx, conversation_num):
-    images, texts = [], []
-    url = result.get("thumbnail")
-    try:
-        resp = requests.get(url)
-        resp.raise_for_status()
-        img = Image.open(BytesIO(resp.content))
-        fname = f"{idx}_{conversation_num}_{result.get('position','0')}.png"
-        out = os.path.join(save_path, fname)
-        img.save(out, format="PNG")
-        images.append((url, out))
-        texts.append(result.get("title", ""))
-    except Exception as e:
-        print(f"Failed to save thumbnail {url}: {e}")
-    return images, texts
-
+def search_image_by_image_url(image_url):
+    image = ImageLoader(image_url).get_image()
+    results = search_pipeline(image, k=2)
+    assert results is not None, "No results found."
+    return results
 
 def parse_image_search_result_by_image(results, save_path, idx, conversation_num):
-    images, texts = [], []
-    kg = results.get("knowledge_graph", {})
-    if "header_images" in kg:
-        for item in kg["header_images"]:
-            url = item.get("source")
-            try:
-                resp = requests.get(url)
-                resp.raise_for_status()
-                img = Image.open(BytesIO(resp.content))
-                fname = f"{idx}_{conversation_num}_header.png"
-                out = os.path.join(save_path, fname)
-                img.save(out, format="PNG")
-                text = f"{kg.get('title','')}: {kg.get('description','')}"
-                images.append((url, out))
-                texts.append(text)
-            except Exception as e:
-                print(f"Failed to save header image {url}: {e}")
-    elif "image_results" in results:
-        for item in results["image_results"]:
-            snippet = item.get("snippet")
-            if snippet:
-                texts.append(snippet)
-    else:
-        print("No 'knowledge_graph' or 'image_results' in response.")
-    return images, texts
-
+    images, entities = [], []
+    for result in results:
+        url = result.get("url", "")
+        try:
+            resp = requests.get(url)
+            resp.raise_for_status()
+            img = Image.open(BytesIO(resp.content))
+            fname = f"{idx}_{conversation_num}.png"
+            out = os.path.join(save_path, fname)
+            img.save(out, format="PNG")
+            entity = result.get("entities", "")
+            images.append(url, out)
+            entities.append(entity)
+        except Exception as e:
+            print(f"Failed to save image {url}: {e}")
+    return images, entities        
 
 def fine_search(query, search_type, save_path, dataset_name, idx, conversation_num):
     if search_type == "text_search_text":
         results = search_text_by_text(query)
-        texts = [item.get("title","") + item.get("snippet","") for item in results]
+        texts = [item.get("page_snippet","") for item in results]
         return [], texts
 
     if search_type == "img_search_img":
@@ -149,12 +81,8 @@ def fine_search(query, search_type, save_path, dataset_name, idx, conversation_n
             if not txts:
                 saved = search_image_by_image_url(query)
                 imgs, txts = parse_image_search_result_by_image(saved, save_path, idx, conversation_num)
+            print("Search results:", txts)
             return imgs, txts
         saved = search_image_by_image_url(query)
         return parse_image_search_result_by_image(saved, save_path, idx, conversation_num)
-
-    if search_type == "text_search_img":
-        result = search_image_by_text(query)
-        return parse_image_search_result_by_text(result, save_path, idx, conversation_num)
-
     return [], []

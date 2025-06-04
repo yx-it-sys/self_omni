@@ -1,0 +1,1 @@
+python main.py --test_dataset D:/gitcode/projects/OmniSearch/dataset/DynVQA_en/DynVQA_en.202406_dummy.jsonl --dataset_name DynVQA_en --meta_save_path .

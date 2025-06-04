@@ -7,10 +7,16 @@ import argparse
 from agent import QAAgent
 from conversation_manager import ConversationManager
 
-model = "gpt-4o"
-GPT_API_KEY = ""
+model = "gemini-2.0-flash"
+GPT_API_KEY = "AIzaSyABhTC9jRFnkab2GVPxinAHH-3zGlNmvMA"
+
+# headers = {
+#     "Authorization": f"Bearer {GPT_API_KEY}"
+# }
+
 headers = {
-    "Authorization": f"Bearer {GPT_API_KEY}"
+    "Content-Type": "application/json",
+    "gemini-api-key": GPT_API_KEY  # Gemini API 的认证方式
 }
 
 meta_save_path = './vfreshqa_datasets_v2/'#保存地址
@@ -49,7 +55,8 @@ def main(test_dataset,dataset_name, meta_save_path):
 
     output_path = os.path.join(meta_save_path, dataset_name, "output_from_gpt4v.jsonl")
     if os.path.exists(output_path):
-        with open(output_path, "r") as fin:
+        with open(output_path, "r", encoding='utf-8') as fin:
+            print(output_path)
             done_id = [json.loads(data)['question_id'] for data in fin.readlines()]
             datas = [data for data in datas if data['question_id'] not in done_id]
 
